@@ -67,3 +67,26 @@ def test_every_raw_column_is_classified(raw):
     assert not unclassified, f"unclassified raw columns: {sorted(unclassified)}"
     # The check itself must be able to fail.
     assert set(raw.assign(mystery_col=0).columns) - CLASSIFIED == {"mystery_col"}
+
+
+def test_relative_target_inverts_each_transform():
+    """The wrapper must add the base back (or undo the log) exactly. A model
+    that always predicts 'no change' (0 / 1 / log 5) must return the base
+    (or 5) for every row."""
+    import numpy as np
+    from sklearn.dummy import DummyRegressor
+
+    from src.train import RelativeTarget
+
+    X = pd.DataFrame({"cnt_roll_7": [1000.0, 2000.0, 4000.0]})
+    y = pd.Series([1100.0, 1900.0, 4200.0])
+    cases = [
+        ("diff", 0.0, [1000.0, 2000.0, 4000.0]),
+        ("ratio", 1.0, [1000.0, 2000.0, 4000.0]),
+        ("log", float(np.log(5.0)), [5.0, 5.0, 5.0]),
+    ]
+    for mode, const, expected in cases:
+        model = RelativeTarget(DummyRegressor(strategy="constant", constant=const),
+                               base="cnt_roll_7", mode=mode)
+        model.fit(X, y)
+        assert model.predict(X) == pytest.approx(expected), mode
