@@ -75,6 +75,11 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     out["cnt_lag_7"] = out[TARGET].shift(LAG_WARMUP)
     out["cnt_roll_7"] = out[TARGET].shift(1).rolling(LAG_WARMUP).mean()
 
+    # --- Lagged weather: yesterday's measured temperature. Built after the
+    # calendar reindex, so the day after the 2011-03-10 gap is NaN (dropped),
+    # not a two-day lag mislabelled as one. ---------------------------------
+    out["temp_lag_1"] = out["temp"].shift(1)
+
     return out.dropna().reset_index(drop=True)
 
 
