@@ -43,6 +43,20 @@ def test_lags_are_true_calendar_lags(feats):
     assert checked > 600, "too few rows actually verified"
 
 
+def test_temp_lag_1_is_yesterdays_temp(feats):
+    """temp_lag_1 for date d must equal temp on d-1, in calendar days."""
+    assert "temp_lag_1" in feats.columns, "temp_lag_1 not built"
+    assert "temp_lag_1" in feature_columns(feats)
+    temp = feats.set_index("dteday").temp
+    checked = 0
+    for date, lag in feats.set_index("dteday").temp_lag_1.items():
+        prev = date - pd.Timedelta(days=1)
+        if prev in temp.index:
+            assert lag == pytest.approx(temp[prev]), f"bad temp lag at {date.date()}"
+            checked += 1
+    assert checked > 600, "too few rows actually verified"
+
+
 def test_lag_is_not_the_target(feats):
     assert not (feats.cnt_lag_1 == feats[TARGET]).all()
 
