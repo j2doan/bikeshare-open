@@ -8,7 +8,9 @@ rides) from calendar, weather, and lagged-demand features.
 - `make features` - build `data/processed/features.parquet`
 - `make train` - fit models, write `reports/metrics.json`
 - `make test` - pytest; run this before claiming anything works
-- `make all` - the three pipeline stages in order
+- `make all` - the three pipeline stages in order. Regenerates
+  `reports/metrics.json` exactly (versions are pinned). Headline to
+  reproduce: on test R^2, hgb < persistence < ridge.
 
 ## Non-negotiable rules
 - **Never** put `casual` or `registered` in a feature set:
@@ -20,6 +22,13 @@ rides) from calendar, weather, and lagged-demand features.
 - Any new lag or rolling feature must be built on a gap-free calendar
   index (`src.features.reindex_to_calendar`) and must `.shift(1)` before
   it aggregates. Add a test for it in `tests/test_leakage.py`.
+- Weather lags such as `temp_lag_1` follow the same rule: calendar index,
+  then `.shift(1)`. Keep `temp_lag_1`; `docs/DECISIONS.md` has the
+  validation evidence.
+- Target transforms run only through `python -m src.train
+  --target-transform NAME`, which scores validation only. Use `--test`
+  once, on one chosen transform. `reports/metrics.json` must stay the
+  untransformed `make train` output.
 - Report the mean baseline **and** the persistence baseline (yesterday's
   count) alongside every model. A negative R^2 is a finding, not a bug
   to hide.
@@ -34,8 +43,11 @@ rides) from calendar, weather, and lagged-demand features.
 ## Gotchas
 - The mirror in `DATA_URL` is missing 2011-03-10. It is NOT the UCI file:
   728 rows from 2011-01-03, not 731 from 2011-01-01.
-- `weather` uses the labels `GOOD` / `MISTY` / `BAD`, not the UCI codes 1-4.
 - Ridership grew ~65% from 2011 to 2012, so tree models trained on 2011
   cannot extrapolate to 2012. That is the headline result, not an error.
 - 2012-10-29 (Hurricane Sandy, 22 rides) is in the test set. Expect it in
   any residual plot.
+
+## Skills
+- `/new-feature` adds a predictor, test first. `/seed-fault` plants one
+  fault in `src/` and stops. It runs no tests and fixes nothing.
