@@ -73,7 +73,7 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     # If you add a longer lag, raise LAG_WARMUP in src/config.py.
     out["cnt_lag_1"] = out[TARGET].shift(1)
     out["cnt_lag_7"] = out[TARGET].shift(LAG_WARMUP)
-    out["cnt_roll_7"] = out[TARGET].rolling(LAG_WARMUP).mean()
+    out["cnt_roll_7"] = out[TARGET].shift(1).rolling(LAG_WARMUP).mean()
 
     # --- Lagged weather: yesterday's measured temperature. Built after the
     # calendar reindex, so the day after the 2011-03-10 gap is NaN (dropped),
