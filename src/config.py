@@ -45,6 +45,19 @@ UNVERIFIED_COLS = {"cnt_2d_bfr"}
 # What feature_columns() and the tests actually enforce.
 FORBIDDEN = LEAKAGE_COLS | TIME_INDEX_COLS | UNVERIFIED_COLS
 
+# 4. Feature sources: raw columns that src/features.py reads (directly or to
+#    derive dayofweek, month_sin/cos, is_holiday, is_workday, weather_severity).
+FEATURE_SOURCE_COLS = {
+    "dteday", "temp", "atemp", "hum", "windspeed", "holiday", "workday", "weather",
+}
+
+# 5. Ignored: text calendar labels that repeat what `dteday` already says.
+IGNORED_COLS = {"season", "mnth", "weekday"}
+
+# Every raw column must be in exactly one of the groups above.
+# tests/test_contract.py fails when the CSV gains a column not listed here.
+CLASSIFIED = FORBIDDEN | FEATURE_SOURCE_COLS | IGNORED_COLS
+
 # Temporal split: train on 2011, validate on H1 2012, test on H2 2012.
 TRAIN_END = "2011-12-31"
 VALID_END = "2012-06-30"
