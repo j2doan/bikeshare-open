@@ -85,9 +85,19 @@ FAILED tests/test_leakage.py::test_encode_weather_rejects_unknown_label
 1 failed, 8 passed in 5.52s
 ```
 
-**Hook**: silent on the original edit (no test existed). After the test was added, I ran the hook script by hand on the same state and it exited 2 with `Leakage tests failed after editing src/features.py:`, so a fresh seed of this fault now triggers it.
+**Hook, first run**: silent, because no test existed yet.
 
-**Turns to fix**: 1. The agent restored the `if unknown: raise ...` block and ran `make test` (17 passed, one more than before because of the new test).
+**Hook, second run**: after the test was added, I seeded the same fault again (commit "Re-seed fault 3") so the hook could fire on the agent's own edit. It did (excerpt):
+
+```
+PostToolUse:Edit hook reported a problem
+Leakage tests failed after editing .../src/features.py:
+E       Failed: DID NOT RAISE ValueError
+FAILED tests/test_leakage.py::test_encode_weather_rejects_unknown_label - Failed: DID NOT RAISE ValueError
+1 failed, 8 passed in 4.84s
+```
+
+**Turns to fix**: 1 both times. The agent restored the `if unknown: raise ...` block and ran `make test` (17 passed, one more than before because of the new test).
 
 ## Fault 4: a Bash `cp` into `data/raw/`, which the hook cannot see
 
