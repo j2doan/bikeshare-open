@@ -1,0 +1,52 @@
+{
+  "n_train": 348,
+  "n_valid": 182,
+  "baseline_mean": {
+    "valid": {
+      "r2": -0.9318,
+      "mae": 2002.2
+    }
+  },
+  "baseline_persistence": {
+    "valid": {
+      "r2": 0.4507,
+      "mae": 900.6
+    }
+  },
+  "ridge": {
+    "valid": {
+      "r2": 0.6951,
+      "mae": 746.1
+    }
+  },
+  "hgb": {
+    "valid": {
+      "r2": 0.1936,
+      "mae": 1321.1
+    }
+  },
+  "hgb_diff_roll7": {
+    "valid": {
+      "r2": 0.7261,
+      "mae": 704.5
+    }
+  },
+  "hgb_ratio_roll7": {
+    "valid": {
+      "r2": 0.7638,
+      "mae": 657.1
+    }
+  },
+  "hgb_diff_lag7": {
+    "valid": {
+      "r2": 0.4955,
+      "mae": 957.9
+    }
+  },
+  "hgb_log": {
+    "valid": {
+      "r2": 0.1605,
+      "mae": 1334.7
+    }
+  }
+}
